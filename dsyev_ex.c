@@ -60,6 +60,12 @@
 /* DSYEV prototype */
 extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
 	double* w, double* work, int* lwork, int* info );
+/* DSYEVX prototype */
+extern void dsyevx_( char* jobz, char* range, char* uplo, int* n, double* a,
+	int* lda, double* vl, double* vu, int* il, int* iu, double* abstol,
+	int* m, double* w, double* z, int* ldz, double* work, int* lwork,
+	int* iwork, int* ifail, int* info );
+
 
 void print_matrix( int m, int n, double* a, int lda ) {
 	int i, j;
@@ -72,15 +78,53 @@ void print_matrix( int m, int n, double* a, int lda ) {
 }
 
 /* Parameters */
-#define N 5
+//#define EXPERT 1
+
+#define N 4000
 #define LDA N
+
+#ifdef EXPERT
+# define NSELECT N
+# define LDZ N
+#endif
 
 /* Main program */
 int main() {
 	/* Locals */
+	int i;
+	char* jobz = "V";
 	int n = N, lda = LDA, info, lwork;
 	double wkopt;
 	double* work;
+#ifdef EXPERT
+        int il, iu, m, ldz = LDZ;
+        double abstol, vl, vu;
+	int* iwork;
+	int* ifail;
+	double* z;
+	/* Negative abstol means using the default value */
+	abstol = -1.0;
+	/* Set il, iu to compute NSELECT smallest eigenvalues */
+	il = 1;
+	iu = NSELECT;
+	/* iwork dimension should be at least 5*n */
+	iwork = malloc(sizeof(int)*5*N);
+	ifail = malloc(sizeof(int)*N);
+	z = malloc(sizeof(double)*LDZ*NSELECT);
+#endif
+
+#if 1
+	double *w;
+	double *a;
+
+	a = malloc(sizeof(double)*LDA*N);
+	w = malloc(sizeof(double)*N);
+
+	for (i=0; i < LDA*N; i++) {
+		a[i] = (double) random()/RAND_MAX;
+	}
+#endif
+#if 0
 	/* Local arrays */
 	double w[N];
 	double a[LDA*N] = {
@@ -90,27 +134,51 @@ int main() {
 	-7.20,  1.50, -1.51,  5.70,  0.00,
 	-0.65, -6.34,  2.67,  1.80, -7.10
 	};
-	
+#endif
+
 	printf( "inout matrix:\n" );
 	print_matrix( n, n, a, lda );
-	
+
 	/* Query and allocate the optimal workspace */
 	lwork = -1;
-	dsyev_( "V", "U", &n, a, &lda, w, &wkopt, &lwork, &info );
+#ifndef EXPERT
+	dsyev_( jobz, "Upper", &n, a, &lda, w, &wkopt, &lwork, &info );
+#else
+	dsyevx_( jobz, "Indices", "Upper", &n, a, &lda, &vl, &vu, &il, &iu,
+		&abstol, &m, w, z, &ldz, &wkopt, &lwork, iwork, ifail, &info );
+#endif
+
 	lwork = (int)wkopt;
 	work = (double*)malloc( lwork*sizeof(double) );
 	/* Solve eigenproblem */
-	dsyev_( "V", "U", &n, a, &lda, w, work, &lwork, &info );
+#ifndef EXPERT
+	dsyev_( jobz, "Upper", &n, a, &lda, w, work, &lwork, &info );
+#else
+	dsyevx_( jobz, "Indices", "Upper", &n, a, &lda, &vl, &vu, &il, &iu,
+		&abstol, &m, w, z, &ldz, work, &lwork, iwork, ifail, &info );
+#endif
 	/* Check for convergence */
 	if( info > 0 ) {
 		fprintf( stderr, "The algorithm failed to compute eigenvalues.\n" );
 		exit( 1 );
 	}
-	
-	printf( "\nresults, eigenvalues:\n" );
-	print_matrix( 1, n, w, 1 );
-	printf( "\nresults, eigenvectors:\n" );
-	print_matrix( n, n, a, lda );
+
+	{
+#ifndef EXPERT
+		int p_m = n;
+		double* p_z = a;
+		int p_ldz = lda;
+#else
+		int p_m = m;
+		double* p_z = z;
+		int p_ldz = ldz;
+#endif
+		printf( "\nThe total number of eigenvalues found:%2i\n", p_m );
+		printf( "\nresults, eigenvalues:\n" );
+		print_matrix( 1, p_m, w, 1 );
+		printf( "\nresults, eigenvectors:\n" );
+		print_matrix( n, p_m, p_z, p_ldz );
+	}
 
 	/* Free workspace */
 	free( (void*)work );
