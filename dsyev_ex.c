@@ -91,7 +91,7 @@ void print_matrix( int m, int n, double* a, int lda ) {
 /* Main program */
 int main() {
 	/* Locals */
-	int i;
+	int64_t i;
 	char* jobz = "V";
 	int n = N, lda = LDA, info, lwork;
 	double wkopt;
@@ -120,7 +120,7 @@ int main() {
 	a = malloc(sizeof(double)*LDA*N);
 	w = malloc(sizeof(double)*N);
 
-	for (i=0; i < LDA*N; i++) {
+	for (i=0; i < (int64_t)LDA*N; i++) {
 		a[i] = (double) random()/RAND_MAX;
 	}
 #endif
