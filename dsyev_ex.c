@@ -150,6 +150,14 @@ int main() {
 
 	lwork = (int)wkopt;
 	work = (double*)malloc(sizeof(double)*lwork);
+	{
+		size_t malloced;
+		malloced += sizeof(double)*LDA*N + sizeof(double)*N + sizeof(double)*lwork;
+#ifdef EXPERT
+		malloced += sizeof(int)*5*N + sizeof(int)*N;
+#endif
+		printf( "memory malloc: %zu\n", malloced/1024 );
+	}
 	/* Solve eigenproblem */
 #ifndef EXPERT
 	dsyev_( jobz, "Upper", &n, a, &lda, w, work, &lwork, &info );
