@@ -152,12 +152,12 @@ int main() {
 	lwork = (int)wkopt;
 	work = (double*)malloc(sizeof(double)*lwork);
 	{
-		size_t malloced;
+		size_t malloced = 0;
 		malloced += sizeof(double)*LDA*N + sizeof(double)*N + sizeof(double)*lwork;
 #ifdef EXPERT
-		malloced += sizeof(int)*5*N + sizeof(int)*N;
+		malloced += sizeof(int)*5*N + sizeof(int)*N + sizeof(double)*LDZ*NSELECT;
 #endif
-		printf( "\nmemory malloc: %zu\n", malloced/1024 );
+		printf( "\nmemory malloced (kbytes): %zu\n", malloced / 1024 + 1);
 	}
 	/* Solve eigenproblem */
 #ifndef EXPERT
