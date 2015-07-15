@@ -78,13 +78,13 @@ void print_matrix( int m, int n, double* a, int lda ) {
 }
 
 /* Parameters */
-//#define EXPERT 1
+#define EXPERT 1
 
 #define N 4000
 #define LDA N
 
 #ifdef EXPERT
-# define NSELECT N
+# define NSELECT 10
 # define LDZ N
 #endif
 
