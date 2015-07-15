@@ -56,6 +56,8 @@
 */
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <limits.h>
 
 /* DSYEV prototype */
 extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
@@ -81,12 +83,12 @@ void print_matrix( int m, int n, double* a, int lda ) {
 #define EXPERT 1
 
 /* Main program */
-int main() {
+int main(int argc, char **argv) {
 	/* Locals */
 	int64_t i;
 	char* jobz = "V";
 	int n = 20;
-	int lda = n;
+	int lda;
 	int info;
 	int lwork;
 	double wkopt;
@@ -95,11 +97,11 @@ int main() {
 	double *a;
 #ifdef EXPERT
 	/* Set il, iu to compute NSELECT smallest eigenvalues */
-	int il = 1;
-	int iu = 10;
-	int nselect = iu - il + 1;
+	int il;
+	int iu;
+	int nselect;
 	int m;
-	int ldz = n;
+	int ldz;
 	/* Negative abstol means using the default value */
 	double abstol = -1.0;
 	double vl;
@@ -109,9 +111,28 @@ int main() {
 	double* z;
 #endif
 
+	/* parse command line */
+	if (argc > 1) {
+		errno = 0;
+		long int tmp = strtol(argv[1], (char **) NULL, 10);
+		if (errno != 0 || tmp <= 0 || tmp > INT_MAX) {
+			fprintf(stderr, "error: bad parameter n = '%s', "
+				"should be 0 < n <= INT_MAX\n", argv[1]);
+			exit(1);
+		}
+		n = tmp;
+	}
+
+	printf( "input matrix size: %d\n", n );
+
+	lda = n;
 	a = malloc(sizeof(double)*lda*n);
 	w = malloc(sizeof(double)*n);
 #ifdef EXPERT
+	il = 1;
+	iu = n < 10 ? n : 10;
+	nselect = iu - il + 1;
+	ldz = n;
 	iwork = malloc(sizeof(int)*5*n);
 	ifail = malloc(sizeof(int)*n);
 	z = malloc(sizeof(double)*ldz*nselect);
@@ -132,7 +153,6 @@ int main() {
 	};
 #endif
 
-	printf( "input matrix size: %d\n", n );
 	printf( "\ninput matrix:\n" );
 	print_matrix( n, n, a, lda );
 
