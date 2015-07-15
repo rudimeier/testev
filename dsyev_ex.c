@@ -69,6 +69,16 @@ extern void dsyevx_( char* jobz, char* range, char* uplo, int* n, double* a,
 	int* m, double* w, double* z, int* ldz, double* work, int* lwork,
 	int* iwork, int* ifail, int* info );
 
+static inline void *xmalloc(const size_t size)
+{
+	void *ret = malloc(size);
+
+	if (!ret && size) {
+		fprintf(stderr, "error: cannot allocate %zu bytes\n", size);
+		exit(1);
+	}
+	return ret;
+}
 
 static void print_matrix( int m, int n, double* a, int lda ) {
 	int i, j;
@@ -127,16 +137,16 @@ int main(int argc, char **argv) {
 	printf( "input matrix size: %d\n", n );
 
 	lda = n;
-	a = malloc(sizeof(double)*lda*n);
-	w = malloc(sizeof(double)*n);
+	a = xmalloc(sizeof(double)*lda*n);
+	w = xmalloc(sizeof(double)*n);
 #ifdef EXPERT
 	il = 1;
 	iu = n < 10 ? n : 10;
 	nselect = iu - il + 1;
 	ldz = n;
-	iwork = malloc(sizeof(int)*5*n);
-	ifail = malloc(sizeof(int)*n);
-	z = malloc(sizeof(double)*ldz*nselect);
+	iwork = xmalloc(sizeof(int)*5*n);
+	ifail = xmalloc(sizeof(int)*n);
+	z = xmalloc(sizeof(double)*ldz*nselect);
 #endif
 
 	for (i=0; i < (int64_t)lda*n; i++) {
@@ -167,7 +177,7 @@ int main(int argc, char **argv) {
 #endif
 
 	lwork = (int)wkopt;
-	work = (double*)malloc(sizeof(double)*lwork);
+	work = (double*)xmalloc(sizeof(double)*lwork);
 	{
 		size_t malloced = 0;
 		malloced += sizeof(double)*lda*n + sizeof(double)*n + sizeof(double)*lwork;
