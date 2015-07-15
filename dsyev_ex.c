@@ -80,6 +80,22 @@ static inline void *xmalloc(const size_t size)
 	return ret;
 }
 
+/* create a random matrix, fill only the upper triangle (should be sparse!) */
+static void random_matrix_upper( int n, double* a, int lda )
+{
+	int64_t i;
+	for (i=0; i < (int64_t)lda*n; i++) {
+		int ii, jj;
+		/* calculate ii and jj so that i == ii+jj*lda */
+		jj = i % lda;
+		ii = i - jj*lda;
+
+		if (ii > jj - 1) {
+			a[i] = (double) random()/RAND_MAX;
+		}
+	}
+}
+
 static void print_matrix( int m, int n, double* a, int lda ) {
 	int i, j;
 	for( i = 0; i < m; i++ ) {
@@ -96,7 +112,6 @@ static void print_matrix( int m, int n, double* a, int lda ) {
 /* Main program */
 int main(int argc, char **argv) {
 	/* Locals */
-	int64_t i;
 	char* jobz = "V";
 	int n = 20;
 	int lda;
@@ -149,9 +164,8 @@ int main(int argc, char **argv) {
 	z = xmalloc(sizeof(double)*ldz*nselect);
 #endif
 
-	for (i=0; i < (int64_t)lda*n; i++) {
-		a[i] = (double) random()/RAND_MAX;
-	}
+	random_matrix_upper( n, a, lda );
+
 #if 0
 	/* Local arrays */
 	double w[n];
