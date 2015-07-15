@@ -80,7 +80,7 @@ void print_matrix( int m, int n, double* a, int lda ) {
 /* Parameters */
 #define EXPERT 1
 
-#define N 4000
+#define N 20
 #define LDA N
 
 #ifdef EXPERT
