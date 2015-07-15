@@ -181,6 +181,13 @@ int main() {
 	}
 
 	/* Free workspace */
+	free( (void*)a );
+	free( (void*)w );
 	free( (void*)work );
+#ifdef EXPERT
+	free( (void*)iwork );
+	free( (void*)ifail );
+	free( (void*)z );
+#endif
 	exit( 0 );
 }
