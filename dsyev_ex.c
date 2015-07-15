@@ -83,11 +83,6 @@ void print_matrix( int m, int n, double* a, int lda ) {
 #define N 20
 #define LDA N
 
-#ifdef EXPERT
-# define NSELECT 10
-# define LDZ N
-#endif
-
 /* Main program */
 int main() {
 	/* Locals */
@@ -97,7 +92,7 @@ int main() {
 	double wkopt;
 	double* work;
 #ifdef EXPERT
-        int il, iu, m, ldz = LDZ;
+        int il, iu, nselect, m, ldz = n;
         double abstol, vl, vu;
 	int* iwork;
 	int* ifail;
@@ -106,11 +101,12 @@ int main() {
 	abstol = -1.0;
 	/* Set il, iu to compute NSELECT smallest eigenvalues */
 	il = 1;
-	iu = NSELECT;
+	iu = 10;
+	nselect = iu - il + 1;
 	/* iwork dimension should be at least 5*n */
 	iwork = malloc(sizeof(int)*5*N);
 	ifail = malloc(sizeof(int)*N);
-	z = malloc(sizeof(double)*LDZ*NSELECT);
+	z = malloc(sizeof(double)*ldz*nselect);
 #endif
 
 #if 1
@@ -155,7 +151,7 @@ int main() {
 		size_t malloced = 0;
 		malloced += sizeof(double)*LDA*N + sizeof(double)*N + sizeof(double)*lwork;
 #ifdef EXPERT
-		malloced += sizeof(int)*5*N + sizeof(int)*N + sizeof(double)*LDZ*NSELECT;
+		malloced += sizeof(int)*5*N + sizeof(int)*N + sizeof(double)*ldz*nselect;
 #endif
 		printf( "\nmemory malloced (kbytes): %zu\n", malloced / 1024 + 1);
 	}
