@@ -71,7 +71,7 @@ void print_matrix( int m, int n, double* a, int lda ) {
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
-			printf( " %6.2f", a[i+j*lda] );
+			printf( " %6.2f", a[(int64_t)i+j*lda] );
 		}
 		printf( "\n" );
 	}
@@ -149,7 +149,7 @@ int main() {
 #endif
 
 	lwork = (int)wkopt;
-	work = (double*)malloc( lwork*sizeof(double) );
+	work = (double*)malloc(sizeof(double)*lwork);
 	/* Solve eigenproblem */
 #ifndef EXPERT
 	dsyev_( jobz, "Upper", &n, a, &lda, w, work, &lwork, &info );
