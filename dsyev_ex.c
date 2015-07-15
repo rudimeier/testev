@@ -151,8 +151,8 @@ int main(int argc, char **argv) {
 	double *a;
 #ifdef EXPERT
 	/* Set il, iu to compute NSELECT smallest eigenvalues */
-	int il;
-	int iu;
+	int il = 1;
+	int iu = 10;
 	int nselect;
 	int m;
 	int ldz;
@@ -183,8 +183,9 @@ int main(int argc, char **argv) {
 	a = xmalloc(sizeof(double)*lda*n);
 	w = xmalloc(sizeof(double)*n);
 #ifdef EXPERT
-	il = 1;
-	iu = n < 10 ? n : 10;
+	if (n < iu) {
+		iu = n;
+	}
 	nselect = iu - il + 1;
 	ldz = n;
 	iwork = xmalloc(sizeof(int)*5*n);
