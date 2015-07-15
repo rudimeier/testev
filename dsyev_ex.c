@@ -80,15 +80,15 @@ void print_matrix( int m, int n, double* a, int lda ) {
 /* Parameters */
 #define EXPERT 1
 
-#define N 20
-#define LDA N
-
 /* Main program */
 int main() {
 	/* Locals */
 	int64_t i;
 	char* jobz = "V";
-	int n = N, lda = LDA, info, lwork;
+	int n = 20;
+	int lda = n;
+	int info;
+	int lwork;
 	double wkopt;
 	double* work;
 #ifdef EXPERT
@@ -104,8 +104,8 @@ int main() {
 	iu = 10;
 	nselect = iu - il + 1;
 	/* iwork dimension should be at least 5*n */
-	iwork = malloc(sizeof(int)*5*N);
-	ifail = malloc(sizeof(int)*N);
+	iwork = malloc(sizeof(int)*5*n);
+	ifail = malloc(sizeof(int)*n);
 	z = malloc(sizeof(double)*ldz*nselect);
 #endif
 
@@ -113,17 +113,17 @@ int main() {
 	double *w;
 	double *a;
 
-	a = malloc(sizeof(double)*LDA*N);
-	w = malloc(sizeof(double)*N);
+	a = malloc(sizeof(double)*lda*n);
+	w = malloc(sizeof(double)*n);
 
-	for (i=0; i < (int64_t)LDA*N; i++) {
+	for (i=0; i < (int64_t)lda*n; i++) {
 		a[i] = (double) random()/RAND_MAX;
 	}
 #endif
 #if 0
 	/* Local arrays */
-	double w[N];
-	double a[LDA*N] = {
+	double w[n];
+	double a[lda*n] = {
 	1.96,  0.00,  0.00,  0.00,  0.00,
 	-6.49,  3.80,  0.00,  0.00,  0.00,
 	-0.47, -6.39,  4.17,  0.00,  0.00,
@@ -149,9 +149,9 @@ int main() {
 	work = (double*)malloc(sizeof(double)*lwork);
 	{
 		size_t malloced = 0;
-		malloced += sizeof(double)*LDA*N + sizeof(double)*N + sizeof(double)*lwork;
+		malloced += sizeof(double)*lda*n + sizeof(double)*n + sizeof(double)*lwork;
 #ifdef EXPERT
-		malloced += sizeof(int)*5*N + sizeof(int)*N + sizeof(double)*ldz*nselect;
+		malloced += sizeof(int)*5*n + sizeof(int)*n + sizeof(double)*ldz*nselect;
 #endif
 		printf( "\nmemory malloced (kbytes): %zu\n", malloced / 1024 + 1);
 	}
