@@ -56,6 +56,7 @@
 */
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <errno.h>
 #include <limits.h>
 
@@ -69,7 +70,7 @@ extern void dsyevx_( char* jobz, char* range, char* uplo, int* n, double* a,
 	int* iwork, int* ifail, int* info );
 
 
-void print_matrix( int m, int n, double* a, int lda ) {
+static void print_matrix( int m, int n, double* a, int lda ) {
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
