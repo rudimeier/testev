@@ -96,7 +96,8 @@ static void random_matrix_upper( int n, double* a, int lda )
 	}
 }
 
-static void print_matrix( int m, int n, double* a, int lda ) {
+static void print_matrix( int m, int n, double* a, int lda )
+{
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
