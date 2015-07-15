@@ -57,6 +57,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <errno.h>
 #include <limits.h>
 
@@ -94,6 +95,32 @@ static void random_matrix_upper( int n, double* a, int lda )
 			a[i] = (double) random()/RAND_MAX;
 		}
 	}
+}
+
+/* the hardcoded matrix from the original example */
+static void hardcoded_matrix( int n, double* a, int lda)
+{
+#define TMP_N 5
+#define TMP_LDA TMP_N
+
+	double A[TMP_LDA*TMP_N] = {
+	1.96,  0.00,  0.00,  0.00,  0.00,
+	-6.49,  3.80,  0.00,  0.00,  0.00,
+	-0.47, -6.39,  4.17,  0.00,  0.00,
+	-7.20,  1.50, -1.51,  5.70,  0.00,
+	-0.65, -6.34,  2.67,  1.80, -7.10
+	};
+
+	if (n != TMP_N || lda != TMP_LDA) {
+		fprintf(stderr, "error: n = %d, this example needs n = %d\n",
+			n, TMP_N);
+		exit(1);
+	}
+
+	memcpy(a, A, sizeof(double)*TMP_LDA*TMP_N);
+
+#undef TMP_N
+#undef TMP_LDA
 }
 
 static void print_matrix( int m, int n, double* a, int lda )
@@ -166,18 +193,7 @@ int main(int argc, char **argv) {
 #endif
 
 	random_matrix_upper( n, a, lda );
-
-#if 0
-	/* Local arrays */
-	double w[n];
-	double a[lda*n] = {
-	1.96,  0.00,  0.00,  0.00,  0.00,
-	-6.49,  3.80,  0.00,  0.00,  0.00,
-	-0.47, -6.39,  4.17,  0.00,  0.00,
-	-7.20,  1.50, -1.51,  5.70,  0.00,
-	-0.65, -6.34,  2.67,  1.80, -7.10
-	};
-#endif
+	//hardcoded_matrix( n, a, lda);
 
 	printf( "\ninput matrix:\n" );
 	print_matrix( n, n, a, lda );
