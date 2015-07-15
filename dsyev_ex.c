@@ -91,35 +91,35 @@ int main() {
 	int lwork;
 	double wkopt;
 	double* work;
+	double *w;
+	double *a;
 #ifdef EXPERT
-        int il, iu, nselect, m, ldz = n;
-        double abstol, vl, vu;
+	/* Set il, iu to compute NSELECT smallest eigenvalues */
+	int il = 1;
+	int iu = 10;
+	int nselect = iu - il + 1;
+	int m;
+	int ldz = n;
+	/* Negative abstol means using the default value */
+	double abstol = -1.0;
+	double vl;
+	double vu;
 	int* iwork;
 	int* ifail;
 	double* z;
-	/* Negative abstol means using the default value */
-	abstol = -1.0;
-	/* Set il, iu to compute NSELECT smallest eigenvalues */
-	il = 1;
-	iu = 10;
-	nselect = iu - il + 1;
-	/* iwork dimension should be at least 5*n */
+#endif
+
+	a = malloc(sizeof(double)*lda*n);
+	w = malloc(sizeof(double)*n);
+#ifdef EXPERT
 	iwork = malloc(sizeof(int)*5*n);
 	ifail = malloc(sizeof(int)*n);
 	z = malloc(sizeof(double)*ldz*nselect);
 #endif
 
-#if 1
-	double *w;
-	double *a;
-
-	a = malloc(sizeof(double)*lda*n);
-	w = malloc(sizeof(double)*n);
-
 	for (i=0; i < (int64_t)lda*n; i++) {
 		a[i] = (double) random()/RAND_MAX;
 	}
-#endif
 #if 0
 	/* Local arrays */
 	double w[n];
