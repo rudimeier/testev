@@ -21,6 +21,7 @@ hostname -f
 free
 grep -m2 "^model" /proc/cpuinfo
 lscpu
+ulimit -a
 env | sort
 echo "#### end env"
 
