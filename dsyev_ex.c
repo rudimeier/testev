@@ -136,7 +136,8 @@ int main() {
 	};
 #endif
 
-	printf( "inout matrix:\n" );
+	printf( "input matrix size: %d\n", n );
+	printf( "\ninput matrix:\n" );
 	print_matrix( n, n, a, lda );
 
 	/* Query and allocate the optimal workspace */
@@ -156,7 +157,7 @@ int main() {
 #ifdef EXPERT
 		malloced += sizeof(int)*5*N + sizeof(int)*N;
 #endif
-		printf( "memory malloc: %zu\n", malloced/1024 );
+		printf( "\nmemory malloc: %zu\n", malloced/1024 );
 	}
 	/* Solve eigenproblem */
 #ifndef EXPERT
@@ -181,7 +182,7 @@ int main() {
 		double* p_z = z;
 		int p_ldz = ldz;
 #endif
-		printf( "\nThe total number of eigenvalues found:%2i\n", p_m );
+		printf( "\nThe total number of eigenvalues found: %2d\n", p_m );
 		printf( "\nresults, eigenvalues:\n" );
 		print_matrix( 1, p_m, w, 1 );
 		printf( "\nresults, eigenvectors:\n" );
