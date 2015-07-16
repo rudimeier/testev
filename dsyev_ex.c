@@ -98,6 +98,16 @@ static void print_matrix( int m, int n, double* a )
 	}
 }
 
+static void output_results( int m, int n, double* a, double* w )
+{
+	printf( "\nThe total number of eigenvalues found: %2d\n", m );
+	printf( "\nresults, eigenvalues:\n" );
+	print_matrix( 1, m, w );
+	printf( "\nresults, eigenvectors:\n" );
+	print_matrix( n, m, a );
+}
+
+
 /* Parameters */
 #define EXPERT 1
 
@@ -191,20 +201,11 @@ int main(int argc, char **argv) {
 		exit( 1 );
 	}
 
-	{
 #ifndef EXPERT
-		int p_m = n;
-		double* p_z = a;
+	output_results( n, n, a, w );
 #else
-		int p_m = m;
-		double* p_z = z;
+	output_results( m, n, z, w );
 #endif
-		printf( "\nThe total number of eigenvalues found: %2d\n", p_m );
-		printf( "\nresults, eigenvalues:\n" );
-		print_matrix( 1, p_m, w );
-		printf( "\nresults, eigenvectors:\n" );
-		print_matrix( n, p_m, p_z );
-	}
 
 	/* Free workspace */
 	free( (void*)a );
