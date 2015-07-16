@@ -128,7 +128,7 @@ static void output_results( int m, int n, double* a, double* w )
 
 /* Main program */
 int main(int argc, char **argv) {
-	/* Locals */
+	/* arguments for DSYEV(X) function */
 	char* jobz = "V";
 	int n = 20;
 	int info;
@@ -138,10 +138,9 @@ int main(int argc, char **argv) {
 	double *w;
 	double *a;
 #ifdef EXPERT
-	/* Set il, iu to compute NSELECT smallest eigenvalues */
+	/* Set il, iu to compute (iu-il+1) smallest or largest eigenvalues */
 	int il = 1;
 	int iu = 10;
-	int nselect;
 	int m;
 	/* Negative abstol means using the default value */
 	double abstol = -1.0;
@@ -170,10 +169,9 @@ int main(int argc, char **argv) {
 	if (n < iu) {
 		iu = n;
 	}
-	nselect = iu - il + 1;
 	iwork = xmalloc(sizeof(int)*5*n);
 	ifail = xmalloc(sizeof(int)*n);
-	z = xmalloc(sizeof(double)*n*nselect);
+	z = xmalloc(sizeof(double)*n*(iu - il + 1));
 #endif
 
 	random_matrix_upper( n, a );
