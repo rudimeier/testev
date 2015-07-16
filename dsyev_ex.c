@@ -25,18 +25,6 @@ static inline void *xmalloc(const size_t size)
 	return ret;
 }
 
-/* create a random matrix, fill only the upper triangle (should be sparse!) */
-static void random_matrix_upper( int n, double* a, int lda )
-{
-	int i,j;
-	for (j=0; j < n; j++) {
-		for (i=0; i <= j; i++) {
-			int64_t ii = (int64_t)i+(int64_t)j*(int64_t)lda;
-			a[ii] = (double) random()/RAND_MAX;
-		}
-	}
-}
-
 /* create hardcoded matrix from the original example
 
    Results should be:
@@ -88,6 +76,18 @@ static void hardcoded_matrix( int n, double* a, int lda)
 
 #undef TMP_N
 #undef TMP_LDA
+}
+
+/* create a random matrix, fill only the upper triangle (should be sparse!) */
+static void random_matrix_upper( int n, double* a, int lda )
+{
+	int i,j;
+	for (j=0; j < n; j++) {
+		for (i=0; i <= j; i++) {
+			int64_t ii = (int64_t)i+(int64_t)j*(int64_t)lda;
+			a[ii] = (double) random()/RAND_MAX;
+		}
+	}
 }
 
 static void print_matrix( int m, int n, double* a, int lda )
