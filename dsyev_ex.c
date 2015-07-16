@@ -87,12 +87,12 @@ static void random_matrix_upper( int n, double* a )
 	}
 }
 
-static void print_matrix( int m, int n, double* a, int lda )
+static void print_matrix( int m, int n, double* a )
 {
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
-			printf( " %6.2f", a[(size_t)j * lda + i] );
+			printf( " %6.2f", a[(size_t)j * m + i] );
 		}
 		printf( "\n" );
 	}
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
 	//hardcoded_matrix( n, a );
 
 	printf( "\ninput matrix:\n" );
-	print_matrix( n, n, a, lda );
+	print_matrix( n, n, a );
 
 	/* Query and allocate the optimal workspace */
 	lwork = -1;
@@ -199,17 +199,15 @@ int main(int argc, char **argv) {
 #ifndef EXPERT
 		int p_m = n;
 		double* p_z = a;
-		int p_ldz = lda;
 #else
 		int p_m = m;
 		double* p_z = z;
-		int p_ldz = ldz;
 #endif
 		printf( "\nThe total number of eigenvalues found: %2d\n", p_m );
 		printf( "\nresults, eigenvalues:\n" );
-		print_matrix( 1, p_m, w, 1 );
+		print_matrix( 1, p_m, w );
 		printf( "\nresults, eigenvectors:\n" );
-		print_matrix( n, p_m, p_z, p_ldz );
+		print_matrix( n, p_m, p_z );
 	}
 
 	/* Free workspace */
