@@ -29,7 +29,7 @@ static inline void *xmalloc(const size_t size)
 static void random_matrix_upper( int n, double* a, int lda )
 {
 	int64_t i;
-	for (i=0; i < (int64_t)lda*n; i++) {
+	for (i=0; i < (int64_t)lda * (int64_t)n; i++) {
 		int ii, jj;
 		/* calculate ii and jj so that i == ii+jj*lda */
 		jj = i % lda;
@@ -99,7 +99,7 @@ static void print_matrix( int m, int n, double* a, int lda )
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
-			printf( " %6.2f", a[(int64_t)i+j*lda] );
+			printf( " %6.2f", a[(int64_t)i+(int64_t)j*(int64_t)lda] );
 		}
 		printf( "\n" );
 	}
