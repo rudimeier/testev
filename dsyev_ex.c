@@ -5,6 +5,9 @@
 #include <errno.h>
 #include <limits.h>
 
+/* just to print stats */
+static size_t malloced = 0;
+
 /* DSYEV prototype */
 extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
 	double* w, double* work, int* lwork, int* info );
@@ -22,7 +25,13 @@ static inline void *xmalloc(const size_t size)
 		fprintf(stderr, "error: cannot allocate %zu bytes\n", size);
 		exit(1);
 	}
+	malloced += size;
 	return ret;
+}
+
+static void debug_malloc()
+{
+	fprintf( stderr, "memory malloced (kbytes): %zu\n", malloced/1024 + 1);
 }
 
 /* create hardcoded matrix from the original example
@@ -114,7 +123,6 @@ static void output_results( int m, int n, double* a, double* w )
 	print_matrix( n, m, a );
 }
 
-
 /* Parameters */
 #define EXPERT 1
 
@@ -184,14 +192,9 @@ int main(int argc, char **argv) {
 
 	lwork = (int)wkopt;
 	work = (double*)xmalloc(sizeof(double)*lwork);
-	{
-		size_t malloced = 0;
-		malloced += sizeof(double)*n*n + sizeof(double)*n + sizeof(double)*lwork;
-#ifdef EXPERT
-		malloced += sizeof(int)*5*n + sizeof(int)*n + sizeof(double)*n*nselect;
-#endif
-		printf( "\nmemory malloced (kbytes): %zu\n", malloced / 1024 + 1);
-	}
+
+	debug_malloc();
+
 	/* Solve eigenproblem */
 #ifndef EXPERT
 	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, work, &lwork, &info );
