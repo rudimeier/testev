@@ -53,12 +53,11 @@ results, eigenvectors:
   -0.80   0.45   0.17   0.31   0.16
 ----- snap -----
 */
-static void hardcoded_matrix( int n, double* a, int lda)
+static void hardcoded_matrix( int n, double* a )
 {
 #define TMP_N 5
-#define TMP_LDA TMP_N
 
-	double A[TMP_LDA*TMP_N] = {
+	double A[TMP_N*TMP_N] = {
 	1.96,  0.00,  0.00,  0.00,  0.00,
 	-6.49,  3.80,  0.00,  0.00,  0.00,
 	-0.47, -6.39,  4.17,  0.00,  0.00,
@@ -66,25 +65,24 @@ static void hardcoded_matrix( int n, double* a, int lda)
 	-0.65, -6.34,  2.67,  1.80, -7.10
 	};
 
-	if (n != TMP_N || lda != TMP_LDA) {
+	if (n != TMP_N ) {
 		fprintf(stderr, "error: n = %d, this example needs n = %d\n",
 			n, TMP_N);
 		exit(1);
 	}
 
-	memcpy(a, A, sizeof(double)*TMP_LDA*TMP_N);
+	memcpy(a, A, sizeof(double)*TMP_N*TMP_N);
 
 #undef TMP_N
-#undef TMP_LDA
 }
 
 /* create a random matrix, fill only the upper triangle (should be sparse!) */
-static void random_matrix_upper( int n, double* a, int lda )
+static void random_matrix_upper( int n, double* a )
 {
 	int i,j;
 	for (j=0; j < n; j++) {
 		for (i=0; i <= j; i++) {
-			a[(size_t)j * lda + i] = (double) random()/RAND_MAX;
+			a[(size_t)j * n + i] = (double) random()/RAND_MAX;
 		}
 	}
 }
@@ -159,8 +157,8 @@ int main(int argc, char **argv) {
 	z = xmalloc(sizeof(double)*ldz*nselect);
 #endif
 
-	random_matrix_upper( n, a, lda );
-	//hardcoded_matrix( n, a, lda);
+	random_matrix_upper( n, a );
+	//hardcoded_matrix( n, a );
 
 	printf( "\ninput matrix:\n" );
 	print_matrix( n, n, a, lda );
