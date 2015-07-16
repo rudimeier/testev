@@ -118,7 +118,6 @@ int main(int argc, char **argv) {
 	int iu = 10;
 	int nselect;
 	int m;
-	int ldz;
 	/* Negative abstol means using the default value */
 	double abstol = -1.0;
 	double vl;
@@ -149,10 +148,9 @@ int main(int argc, char **argv) {
 		iu = n;
 	}
 	nselect = iu - il + 1;
-	ldz = n;
 	iwork = xmalloc(sizeof(int)*5*n);
 	ifail = xmalloc(sizeof(int)*n);
-	z = xmalloc(sizeof(double)*ldz*nselect);
+	z = xmalloc(sizeof(double)*n*nselect);
 #endif
 
 	random_matrix_upper( n, a );
@@ -167,7 +165,7 @@ int main(int argc, char **argv) {
 	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, &wkopt, &lwork, &info );
 #else
 	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
-		&abstol, &m, w, z, &ldz, &wkopt, &lwork, iwork, ifail, &info );
+		&abstol, &m, w, z, &n/*ldz*/, &wkopt, &lwork, iwork, ifail, &info );
 #endif
 
 	lwork = (int)wkopt;
@@ -176,7 +174,7 @@ int main(int argc, char **argv) {
 		size_t malloced = 0;
 		malloced += sizeof(double)*n*n + sizeof(double)*n + sizeof(double)*lwork;
 #ifdef EXPERT
-		malloced += sizeof(int)*5*n + sizeof(int)*n + sizeof(double)*ldz*nselect;
+		malloced += sizeof(int)*5*n + sizeof(int)*n + sizeof(double)*n*nselect;
 #endif
 		printf( "\nmemory malloced (kbytes): %zu\n", malloced / 1024 + 1);
 	}
@@ -185,7 +183,7 @@ int main(int argc, char **argv) {
 	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, work, &lwork, &info );
 #else
 	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
-		&abstol, &m, w, z, &ldz, work, &lwork, iwork, ifail, &info );
+		&abstol, &m, w, z, &n/*ldz*/, work, &lwork, iwork, ifail, &info );
 #endif
 	/* Check for convergence */
 	if( info > 0 ) {
