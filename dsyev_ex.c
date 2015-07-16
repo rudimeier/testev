@@ -98,6 +98,13 @@ static void print_matrix( int m, int n, double* a )
 	}
 }
 
+static void output_indata( int n, double* a )
+{
+	printf( "input matrix size: %d\n", n );
+	printf( "\ninput matrix:\n" );
+	print_matrix( n, n, a );
+}
+
 static void output_results( int m, int n, double* a, double* w )
 {
 	printf( "\nThe total number of eigenvalues found: %2d\n", m );
@@ -149,8 +156,6 @@ int main(int argc, char **argv) {
 		n = tmp;
 	}
 
-	printf( "input matrix size: %d\n", n );
-
 	a = xmalloc(sizeof(double)*n*n);
 	w = xmalloc(sizeof(double)*n);
 #ifdef EXPERT
@@ -166,8 +171,7 @@ int main(int argc, char **argv) {
 	random_matrix_upper( n, a );
 	//hardcoded_matrix( n, a );
 
-	printf( "\ninput matrix:\n" );
-	print_matrix( n, n, a );
+	output_indata( n, a );
 
 	/* Query and allocate the optimal workspace */
 	lwork = -1;
