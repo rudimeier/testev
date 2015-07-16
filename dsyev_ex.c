@@ -106,7 +106,6 @@ int main(int argc, char **argv) {
 	/* Locals */
 	char* jobz = "V";
 	int n = 20;
-	int lda;
 	int info;
 	int lwork;
 	double wkopt;
@@ -143,8 +142,7 @@ int main(int argc, char **argv) {
 
 	printf( "input matrix size: %d\n", n );
 
-	lda = n;
-	a = xmalloc(sizeof(double)*lda*n);
+	a = xmalloc(sizeof(double)*n*n);
 	w = xmalloc(sizeof(double)*n);
 #ifdef EXPERT
 	if (n < iu) {
@@ -166,9 +164,9 @@ int main(int argc, char **argv) {
 	/* Query and allocate the optimal workspace */
 	lwork = -1;
 #ifndef EXPERT
-	dsyev_( jobz, "Upper", &n, a, &lda, w, &wkopt, &lwork, &info );
+	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, &wkopt, &lwork, &info );
 #else
-	dsyevx_( jobz, "Indices", "Upper", &n, a, &lda, &vl, &vu, &il, &iu,
+	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
 		&abstol, &m, w, z, &ldz, &wkopt, &lwork, iwork, ifail, &info );
 #endif
 
@@ -176,7 +174,7 @@ int main(int argc, char **argv) {
 	work = (double*)xmalloc(sizeof(double)*lwork);
 	{
 		size_t malloced = 0;
-		malloced += sizeof(double)*lda*n + sizeof(double)*n + sizeof(double)*lwork;
+		malloced += sizeof(double)*n*n + sizeof(double)*n + sizeof(double)*lwork;
 #ifdef EXPERT
 		malloced += sizeof(int)*5*n + sizeof(int)*n + sizeof(double)*ldz*nselect;
 #endif
@@ -184,9 +182,9 @@ int main(int argc, char **argv) {
 	}
 	/* Solve eigenproblem */
 #ifndef EXPERT
-	dsyev_( jobz, "Upper", &n, a, &lda, w, work, &lwork, &info );
+	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, work, &lwork, &info );
 #else
-	dsyevx_( jobz, "Indices", "Upper", &n, a, &lda, &vl, &vu, &il, &iu,
+	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
 		&abstol, &m, w, z, &ldz, work, &lwork, iwork, ifail, &info );
 #endif
 	/* Check for convergence */
