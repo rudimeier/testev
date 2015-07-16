@@ -123,6 +123,21 @@ static void output_results( int m, int n, double* a, double* w )
 	print_matrix( n, m, a );
 }
 
+static void check_error_dsyev(int info)
+{
+	if( info == 0 ) {
+		return;
+	}
+	/* Check for convergence */
+	if( info > 0 ) {
+		fprintf( stderr, "error DSYEV: no convergence, %d.\n", info );
+	} else if ( info < 0 ) {
+		fprintf( stderr, "error DSYEV: "
+			"argument %d had an illegal value.\n", -info );
+	}
+	exit(1);
+}
+
 /* Parameters */
 #define EXPERT 1
 
@@ -187,6 +202,7 @@ int main(int argc, char **argv) {
 	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
 		&abstol, &m, w, z, &n/*ldz*/, &wkopt, &lwork, iwork, ifail, &info );
 #endif
+	check_error_dsyev( info );
 
 	lwork = (int)wkopt;
 	work = (double*)xmalloc(sizeof(double)*lwork);
@@ -200,11 +216,7 @@ int main(int argc, char **argv) {
 	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
 		&abstol, &m, w, z, &n/*ldz*/, work, &lwork, iwork, ifail, &info );
 #endif
-	/* Check for convergence */
-	if( info > 0 ) {
-		fprintf( stderr, "The algorithm failed to compute eigenvalues.\n" );
-		exit( 1 );
-	}
+	check_error_dsyev( info );
 
 #ifndef EXPERT
 	output_results( n, n, a, w );
