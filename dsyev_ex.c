@@ -84,8 +84,7 @@ static void random_matrix_upper( int n, double* a, int lda )
 	int i,j;
 	for (j=0; j < n; j++) {
 		for (i=0; i <= j; i++) {
-			int64_t ii = (int64_t)i+(int64_t)j*(int64_t)lda;
-			a[ii] = (double) random()/RAND_MAX;
+			a[(size_t)j * lda + i] = (double) random()/RAND_MAX;
 		}
 	}
 }
@@ -95,7 +94,7 @@ static void print_matrix( int m, int n, double* a, int lda )
 	int i, j;
 	for( i = 0; i < m; i++ ) {
 		for( j = 0; j < n; j++ ) {
-			printf( " %6.2f", a[(int64_t)i+(int64_t)j*(int64_t)lda] );
+			printf( " %6.2f", a[(size_t)j * lda + i] );
 		}
 		printf( "\n" );
 	}
