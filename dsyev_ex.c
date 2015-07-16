@@ -28,15 +28,11 @@ static inline void *xmalloc(const size_t size)
 /* create a random matrix, fill only the upper triangle (should be sparse!) */
 static void random_matrix_upper( int n, double* a, int lda )
 {
-	int64_t i;
-	for (i=0; i < (int64_t)lda * (int64_t)n; i++) {
-		int ii, jj;
-		/* calculate ii and jj so that i == ii+jj*lda */
-		jj = i % lda;
-		ii = i - jj*lda;
-
-		if (ii > jj - 1) {
-			a[i] = (double) random()/RAND_MAX;
+	int i,j;
+	for (j=0; j < n; j++) {
+		for (i=0; i <= j; i++) {
+			int64_t ii = (int64_t)i+(int64_t)j*(int64_t)lda;
+			a[ii] = (double) random()/RAND_MAX;
 		}
 	}
 }
