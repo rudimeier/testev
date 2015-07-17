@@ -8,6 +8,9 @@
 /* compile time parameters */
 #define EXPERT 1
 
+#ifdef EXPERT
+# define PACKED 1
+#endif
 
 /* just to print stats */
 static size_t malloced = 0;
@@ -20,6 +23,12 @@ extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
 extern void dsyevx_( char* jobz, char* range, char* uplo, int* n, double* a,
 	int* lda, double* vl, double* vu, int* il, int* iu, double* abstol,
 	int* m, double* w, double* z, int* ldz, double* work, int* lwork,
+	int* iwork, int* ifail, int* info );
+
+/* DSPEVX prototype -- like DSYEVX but uses packed storage input matrix */
+extern void dspevx_( char* jobz, char* range, char* uplo, int* n, double* ap,
+	double* vl, double* vu, int* il, int* iu, double* abstol,
+	int* m, double* w, double* z, int* ldz, double* work,
 	int* iwork, int* ifail, int* info );
 
 static inline void *xmalloc(const size_t size)
@@ -37,6 +46,24 @@ static inline void *xmalloc(const size_t size)
 static void debug_malloc()
 {
 	fprintf( stderr, "memory malloced (kbytes): %zu\n", malloced/1024 + 1);
+}
+
+/*
+  pack "upper" symmetric matrix a into ap
+  length of a is n*n
+  length of ap is n*(n + 1)/2
+*/
+static void pack_matrix(int n, double* a, double* ap)
+{
+	int i,j;
+
+	for (j=0; j < n; j++) {
+		for (i=0; i <= j; i++) {
+			size_t II = (size_t)j * n + i;
+			size_t ii = (size_t)j*(j+1)/2 + i;
+			ap[ii] = a[II];
+		}
+	}
 }
 
 /* create hardcoded matrix from the original example
@@ -70,6 +97,7 @@ results, eigenvectors:
 static void hardcoded_matrix( int n, double* a )
 {
 #define TMP_N 5
+	int i,j;
 
 	double A[TMP_N*TMP_N] = {
 	1.96,  0.00,  0.00,  0.00,  0.00,
@@ -85,8 +113,11 @@ static void hardcoded_matrix( int n, double* a )
 		exit(1);
 	}
 
+#ifdef PACKED
+	pack_matrix(n, A, a);
+#else
 	memcpy(a, A, sizeof(double)*TMP_N*TMP_N);
-
+#endif
 #undef TMP_N
 }
 
@@ -96,7 +127,12 @@ static void random_matrix_upper( int n, double* a )
 	int i,j;
 	for (j=0; j < n; j++) {
 		for (i=0; i <= j; i++) {
+#ifndef PACKED
 			a[(size_t)j * n + i] = (double) random()/RAND_MAX;
+#else
+			size_t ii = (size_t)j*(j+1)/2 + i;
+			a[ii] = (double) random()/RAND_MAX;
+#endif
 		}
 	}
 }
@@ -112,11 +148,32 @@ static void print_matrix( int m, int n, double* a )
 	}
 }
 
+static void print_matrix_packed( int m, int n, double* a )
+{
+	int i, j;
+	for( i = 0; i < m; i++ ) {
+		for( j = 0; j < n; j++ ) {
+			size_t II = (size_t)j * n + i;
+			size_t ii = (size_t)j*(j+1)/2 + i;
+			if ( j < i) {
+				printf( " %6.2f", 0.0 );
+				continue;
+			}
+			printf( " %6.2f", a[(size_t)ii] );
+		}
+		printf( "\n" );
+	}
+}
+
 static void output_indata( int n, double* a )
 {
 	printf( "input matrix size: %d\n", n );
 	printf( "\ninput matrix:\n" );
+#ifdef PACKED
+	print_matrix_packed( n, n, a );
+#else
 	print_matrix( n, n, a );
+#endif
 }
 
 static void output_results( int m, int n, double* a, double* w )
@@ -180,8 +237,12 @@ int main(int argc, char **argv) {
 		}
 		n = tmp;
 	}
-
+#ifndef PACKED
 	a = xmalloc(sizeof(double)*n*n);
+#else
+	size_t len_a = (size_t)n*(n+1)/2;
+	a = xmalloc(sizeof(double)*len_a);
+#endif
 	w = xmalloc(sizeof(double)*n);
 #ifdef EXPERT
 	if (n < iu) {
@@ -197,6 +258,7 @@ int main(int argc, char **argv) {
 
 	output_indata( n, a );
 
+#ifndef PACKED
 	/* Query and allocate the optimal workspace */
 	lwork = -1;
 #ifndef EXPERT
@@ -209,6 +271,9 @@ int main(int argc, char **argv) {
 
 	lwork = (int)wkopt;
 	work = (double*)xmalloc(sizeof(double)*lwork);
+#else /*PACKED*/
+	work = (double*)xmalloc(sizeof(double)*8*n);
+#endif /*PACKED*/
 
 	debug_malloc();
 
@@ -216,8 +281,13 @@ int main(int argc, char **argv) {
 #ifndef EXPERT
 	dsyev_( jobz, "Upper", &n, a, &n/*lda*/, w, work, &lwork, &info );
 #else
+# ifndef PACKED
 	dsyevx_( jobz, "Indices", "Upper", &n, a, &n/*lda*/, &vl, &vu, &il, &iu,
 		&abstol, &m, w, z, &n/*ldz*/, work, &lwork, iwork, ifail, &info );
+# else
+	dspevx_( jobz, "Indices", "Upper", &n, a,   &vl, &vu, &il, &iu,
+		&abstol, &m, w, z, &n/*ldz*/, work, iwork, ifail, &info );
+# endif
 #endif
 	check_error_dsyev( info );
 
