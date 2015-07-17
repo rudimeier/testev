@@ -5,13 +5,18 @@
 #include <errno.h>
 #include <limits.h>
 
+/* compile time parameters */
+#define EXPERT 1
+
+
 /* just to print stats */
 static size_t malloced = 0;
 
-/* DSYEV prototype */
+/* DSYEV prototype -- all or none eigenvectors */
 extern void dsyev_( char* jobz, char* uplo, int* n, double* a, int* lda,
 	double* w, double* work, int* lwork, int* info );
-/* DSYEVX prototype */
+
+/* DSYEVX prototype -- range of eigenvalues and eigenvectors */
 extern void dsyevx_( char* jobz, char* range, char* uplo, int* n, double* a,
 	int* lda, double* vl, double* vu, int* il, int* iu, double* abstol,
 	int* m, double* w, double* z, int* ldz, double* work, int* lwork,
@@ -138,8 +143,6 @@ static void check_error_dsyev(int info)
 	exit(1);
 }
 
-/* Parameters */
-#define EXPERT 1
 
 /* Main program */
 int main(int argc, char **argv) {
